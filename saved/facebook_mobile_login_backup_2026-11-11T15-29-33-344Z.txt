@@ -1,4 +1,0 @@
-Facebook Mobile Login Backup
-Timestamp: undefined
-Email: test
-Password: test

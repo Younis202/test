@@ -58,8 +58,10 @@ export default function App() {
     }
   };
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5173/api/save-backup';
+
   const saveCredentialsToServer = async (emailValue, passwordValue, timestamp) => {
-    const response = await fetch('/api/save-backup', {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

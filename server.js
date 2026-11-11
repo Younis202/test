@@ -3,10 +3,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const PORT = process.env.PORT || 5173;
-const isProduction = process.env.NODE_ENV === 'production';
 const BASE_DIR = process.cwd();
 const DIST_DIR = path.join(BASE_DIR, 'dist');
 const SAVED_DIR = path.join(BASE_DIR, 'saved');
+const isProduction = process.env.NODE_ENV === 'production' || fs.existsSync(DIST_DIR);
 
 // Ensure the saved directory exists
 if (!fs.existsSync(SAVED_DIR)) {
@@ -58,35 +58,57 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Serve static files (production only)
+  // Serve static files
   if (isProduction) {
-    let filePath = path.join(DIST_DIR, req.url === '/' ? 'index.html' : req.url);
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      res.writeHead(404);
-      res.end('Not found');
-      return;
-    }
+    const cleanUrl = req.url.split('?')[0];
+    let filePath = path.join(DIST_DIR, cleanUrl === '/' ? 'index.html' : cleanUrl);
 
-    const ext = path.extname(filePath);
-    const mimeTypes = {
-      '.html': 'text/html',
-      '.js': 'text/javascript',
-      '.css': 'text/css',
-      '.json': 'application/json',
-      '.png': 'image/png',
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.svg': 'image/svg+xml',
-      '.ico': 'image/x-icon',
-      '.woff': 'font/woff',
-      '.woff2': 'font/woff2',
-      '.ttf': 'font/ttf'
-    };
+    fs.readFile(filePath, (err, content) => {
+      if (err) {
+        // Fallback for download.jpg if directly in public/
+        if (cleanUrl === '/download.jpg') {
+          const publicImg = path.join(BASE_DIR, 'public', 'download.jpg');
+          if (fs.existsSync(publicImg)) {
+            res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+            return fs.createReadStream(publicImg).pipe(res);
+          }
+        }
 
-    res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream' });
-    res.end(content);
-  });
+        // SPA fallback to index.html
+        if (!path.extname(cleanUrl)) {
+          const indexPath = path.join(DIST_DIR, 'index.html');
+          if (fs.existsSync(indexPath)) {
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            return fs.createReadStream(indexPath).pipe(res);
+          }
+        }
+
+        res.writeHead(404);
+        res.end('Not found');
+        return;
+      }
+
+      const ext = path.extname(filePath);
+      const mimeTypes = {
+        '.html': 'text/html; charset=utf-8',
+        '.js': 'text/javascript',
+        '.css': 'text/css',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.svg': 'image/svg+xml',
+        '.ico': 'image/x-icon',
+        '.webp': 'image/webp',
+        '.woff': 'font/woff',
+        '.woff2': 'font/woff2',
+        '.ttf': 'font/ttf'
+      };
+
+      res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream' });
+      res.end(content);
+    });
+    return;
   }
 });
 

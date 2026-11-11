@@ -4,7 +4,7 @@
   "description": "Mobile Facebook extracted from HAR and converted to React",
   "type": "module",
   "scripts": {
-    "start": "vite",
+    "start": "node server.js",
     "dev": "vite",
     "build": "node node_modules/vite/bin/vite.js build",
     "preview": "vite preview"

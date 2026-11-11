@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const PORT = process.env.PORT || 5173;
+const isProduction = process.env.NODE_ENV === 'production';
 const BASE_DIR = process.cwd();
 const DIST_DIR = path.join(BASE_DIR, 'dist');
 const SAVED_DIR = path.join(BASE_DIR, 'saved');
@@ -50,8 +51,9 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Serve static files
-  let filePath = path.join(DIST_DIR, req.url === '/' ? 'index.html' : req.url);
+  // Serve static files (production only)
+  if (isProduction) {
+    let filePath = path.join(DIST_DIR, req.url === '/' ? 'index.html' : req.url);
   fs.readFile(filePath, (err, content) => {
     if (err) {
       res.writeHead(404);
@@ -78,6 +80,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream' });
     res.end(content);
   });
+  }
 });
 
 server.listen(PORT, () => {

@@ -14,6 +14,9 @@ if (!fs.existsSync(SAVED_DIR)) {
 
 const server = http.createServer((req, res) => {
   console.log(`[API] ${req.method} ${req.url}`);
+  // Prevent orphaned keep-alive sockets from blocking
+  req.on('error', () => {});
+  res.on('error', () => {});
   // Handle the save backup API
   if (req.method === 'POST' && req.url === '/api/save-backup') {
     let body = '';
@@ -81,15 +84,25 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Backups saved to: ${SAVED_DIR}`);
+  console.log(`Serving from: ${DIST_DIR}`);
 });
 
-// Handle uncaught errors
+// Log server errors
+server.on('error', (err) => {
+  console.error('Server error:', err.message);
+  console.error(err.stack);
+  process.exit(1);
+});
+
+// Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err.message);
   console.error(err.stack);
   process.exit(1);
 });
 
+// Handle unhandled rejections
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });

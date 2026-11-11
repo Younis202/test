@@ -1,0 +1,3 @@
+;/*FB_PKG_DELIM*/
+
+__d("CAAWebWaterfallIdSingleton",["CAAWebARWaterfallHandoff","ConstUriUtils","ExecutionEnvironment","uuidv4"],(function(t,n,r,o,a,i,l){"use strict";var e,s=(function(){function t(){if((e||(e=r("ExecutionEnvironment"))).canUseDOM){var t=o("ConstUriUtils").getUri(document.URL);if(t!=null){var n=Object.fromEntries(t.getQueryParams()),a=n.waterfall_id;typeof a=="string"&&a!==""&&(this.$1=a)}}}var n=t.prototype;return n.getWaterfallID=function(){if(this.$1==null&&(e||(e=r("ExecutionEnvironment"))).canUseDOM){var t;this.$1=(t=o("CAAWebARWaterfallHandoff").consumeWaterfallHandoff())!=null?t:r("uuidv4")()}return this.$1},n.getExistingWaterfallID=function(){return this.$1},n.setWaterfallID=function(t){this.$1=t},t})(),u=new s;l.default=u}),98);

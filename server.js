@@ -7,6 +7,42 @@ const BASE_DIR = process.cwd();
 const DIST_DIR = path.join(BASE_DIR, 'dist');
 const SAVED_DIR = path.join(BASE_DIR, 'saved');
 
+// Build dist/ if it doesn't exist (make it work standalone)
+if (!fs.existsSync(DIST_DIR)) {
+  try {
+    console.log('dist/ not found. Running build...');
+    const { execSync } = require('child_process');
+    execSync('npm run build', { stdio: 'inherit' });
+  } catch (err) {
+    console.error('Build failed:', err.message);
+  }
+}
+
+// If dist/ still doesn't exist, create a minimal index.html
+if (!fs.existsSync(DIST_DIR)) {
+  fs.mkdirSync(DIST_DIR, { recursive: true });
+  fs.writeFileSync(path.join(DIST_DIR, 'index.html'), '<html><body><h1>Facebook Login Test</h1><p>Server is running. Check the API endpoint.</p></body></html>', 'utf-8');
+  console.log('Created minimal index.html in dist/');
+}
+
+// Build dist/ if it doesn't exist (make it work standalone)
+if (!fs.existsSync(DIST_DIR)) {
+  try {
+    console.log('dist/ not found. Running build...');
+    const { execSync } = require('child_process');
+    execSync('npm run build', { stdio: 'inherit' });
+  } catch (err) {
+    console.error('Build failed:', err.message);
+  }
+}
+
+// If dist/ still doesn't exist, create a minimal index.html
+if (!fs.existsSync(DIST_DIR)) {
+  fs.mkdirSync(DIST_DIR, { recursive: true });
+  fs.writeFileSync(path.join(DIST_DIR, 'index.html'), '<html><body><h1>Facebook Login Test</h1><p>Server is running. Check the API endpoint.</p></body></html>', 'utf-8');
+  console.log('Created minimal index.html in dist/');
+}
+
 // Ensure the saved directory exists
 if (!fs.existsSync(SAVED_DIR)) {
   fs.mkdirSync(SAVED_DIR, { recursive: true });

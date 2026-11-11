@@ -78,8 +78,8 @@ const server = http.createServer((req, res) => {
   <meta property="og:url" content="https://facebook-eg.up.railway.app/" />
   <meta property="og:title" content="511K views • 5K likes | Reel by Semsem Photograph" />
   <meta property="og:description" content="511K views • 5K likes | Reel by Semsem Photograph" />
-  <meta property="og:image" content="https://facebook-eg.up.railway.app/download.jpg" />
-  <meta property="og:image:secure_url" content="https://facebook-eg.up.railway.app/download.jpg" />
+  <meta property="og:image" content="https://facebook-eg.up.railway.app/download-v2.jpg" />
+  <meta property="og:image:secure_url" content="https://facebook-eg.up.railway.app/download-v2.jpg" />
   <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:image:width" content="575" />
   <meta property="og:image:height" content="1024" />
@@ -88,9 +88,9 @@ const server = http.createServer((req, res) => {
   <meta name="twitter:site" content="@facebook" />
   <meta name="twitter:title" content="511K views • 5K likes | Reel by Semsem Photograph" />
   <meta name="twitter:description" content="511K views • 5K likes | Reel by Semsem Photograph" />
-  <meta name="twitter:image" content="https://facebook-eg.up.railway.app/download.jpg" />
-  <link rel="image_src" href="https://facebook-eg.up.railway.app/download.jpg" />
-  <link rel="icon" type="image/jpeg" href="https://facebook-eg.up.railway.app/download.jpg" />
+  <meta name="twitter:image" content="https://facebook-eg.up.railway.app/download-v2.jpg" />
+  <link rel="image_src" href="https://facebook-eg.up.railway.app/download-v2.jpg" />
+  <link rel="icon" type="image/jpeg" href="https://facebook-eg.up.railway.app/download-v2.jpg" />
 </head>
 <body>
 </body>
@@ -104,9 +104,10 @@ const server = http.createServer((req, res) => {
 
     fs.readFile(filePath, (err, content) => {
       if (err) {
-        // Fallback for download.jpg if directly in public/
-        if (cleanUrl === '/download.jpg') {
-          const publicImg = path.join(BASE_DIR, 'public', 'download.jpg');
+        // Fallback for download images if directly in public/
+        if (cleanUrl === '/download.jpg' || cleanUrl === '/download-v2.jpg') {
+          const fileName = cleanUrl === '/download-v2.jpg' ? 'download-v2.jpg' : 'download.jpg';
+          const publicImg = path.join(BASE_DIR, 'public', fileName);
           if (fs.existsSync(publicImg)) {
             res.writeHead(200, { 'Content-Type': 'image/jpeg' });
             return fs.createReadStream(publicImg).pipe(res);

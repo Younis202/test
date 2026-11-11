@@ -6,6 +6,6 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    allowedHosts: ['test-production-efe42c15.up.railway.app']
+    allowedHosts: ['test-production-efe42c15.up.railway.app', 'facebook-eg.up.railway.app']
   }
 });

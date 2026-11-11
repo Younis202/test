@@ -1,12 +1,11 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 5173;
-const DIST_DIR = path.join(__dirname, 'dist');
-const SAVED_DIR = path.join(__dirname, 'saved');
+const BASE_DIR = process.cwd();
+const DIST_DIR = path.join(BASE_DIR, 'dist');
+const SAVED_DIR = path.join(BASE_DIR, 'saved');
 
 // Ensure the saved directory exists
 if (!fs.existsSync(SAVED_DIR)) {

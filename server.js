@@ -3,32 +3,31 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const PORT = process.env.PORT || 5173;
+const PORT = process.env.PORT || 5173;
 const BASE_DIR = process.cwd();
 const DIST_DIR = path.join(BASE_DIR, 'dist');
 const SAVED_DIR = path.join(BASE_DIR, 'saved');
 
-// Build dist/ if it doesn't exist (make it work standalone)
+// Ensure the saved directory exists
+if (!fs.existsSync(SAVED_DIR)) {
+  fs.mkdirSync(SAVED_DIR, { recursive: true });
+}
+
+// Check if dist/ exists - if not, show a notice (build should happen before deploy)
 if (!fs.existsSync(DIST_DIR)) {
-  try {
-    console.log('[SERVER] dist/ not found. Building...');
-    const { execSync } = require('child_process');
-    execSync('npm run build', { stdio: 'inherit' });
-    console.log('[SERVER] Build complete.');
-  } catch (buildErr) {
-    console.error('[SERVER] Build failed:', buildErr.message);
-    console.error('[SERVER] Falling back to minimal index.html');
-    try {
-      fs.mkdirSync(DIST_DIR, { recursive: true });
-      fs.writeFileSync(path.join(DIST_DIR, 'index.html'), '<html><body><h1>Facebook Login Test</h1><p>Server is running. Login saves data to /api/save-backup</p></body></html>', 'utf-8');
-    } catch (fallbackErr) {
-      console.error('[SERVER] Fallback failed:', fallbackErr.message);
-    }
-  }
+  console.warn('[SERVER] dist/ not found! The React app was not built.');
+  console.warn('[SERVER] Run `npm run build` before deploying.');
 }
 
 // Ensure the saved directory exists
 if (!fs.existsSync(SAVED_DIR)) {
   fs.mkdirSync(SAVED_DIR, { recursive: true });
+}
+
+// Check if dist/ exists - if not, show a notice (build should happen before deploy)
+if (!fs.existsSync(DIST_DIR)) {
+  console.warn('[SERVER] dist/ not found! The React app was not built.');
+  console.warn('[SERVER] Run `npm run build` before deploying.');
 }
 
 const server = http.createServer((req, res) => {
